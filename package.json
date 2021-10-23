@@ -1,0 +1,31 @@
+{
+  "name": "contentmanagementsystem",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "express": "^4.17.1",
+    "inquirer": "^8.2.0",
+    "mysql2": "^2.3.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SteveHoltRules/ContentManagementSystem.git"
+  },
+  "keywords": [
+    "MySQL",
+    "Inquirer"
+  ],
+  "author": "Matt Luna",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SteveHoltRules/ContentManagementSystem/issues"
+  },
+  "homepage": "https://github.com/SteveHoltRules/ContentManagementSystem#readme"
+}
