@@ -1,4 +1,3 @@
 DROP DATABASE IF EXISTS content;
 CREATE DATABASE content;
 USE content;
-
