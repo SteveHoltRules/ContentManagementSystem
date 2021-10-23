@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS department;
-DROP TABLE IF EXISTS empRole;
-DROP TABLE IF EXISTS employee;
+DROP DATABASE IF EXISTS content;
+CREATE DATABASE content;
+USE content;
 
 CREATE TABLE department (
   id INTEGER AUTO_INCREMENT PRIMARY KEY,
@@ -12,8 +12,7 @@ CREATE TABLE empRole (
   id INTEGER AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(30) NOT NULL,
   salary DECIMAL(10, 2) NOT NULL,
-  department_id INTEGER,
-  CONSTRAINT fk_department FOREIGN KEY(department_id) REFERENCES department(id) ON DELETE SET NULL
+  department_id INTEGER
 );
 
 CREATE TABLE employee (
@@ -21,7 +20,5 @@ CREATE TABLE employee (
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
   role_id INTEGER,
-  manager_id INTEGER,
-  CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES empRole(id) ON DELETE SET NULL,
-  CONSTRAINT fk_manager FOREIGN KEY (manager_id) REFERENCES empRole(id) ON DELETE SET NULL
+  manager_id INTEGER
 );

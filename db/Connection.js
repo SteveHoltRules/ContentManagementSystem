@@ -8,24 +8,7 @@ const db = mysql.createConnection(
     password: "Txn@lgene11",
     database: "content",
   },
-  console.log(`Connected to the Content database.
-           ,....,
-      ,::::::<
-     ,::/^\"''.
-    ,::/, '   e'.
-   ,::; |        '.
-   ,::|  \___,-.  c)
-   ;::|     \   '-'
-   ;::|      \
-   ;::|   _.= \
-    ;:|.=  _.= \
-     '|_.=    __\
-      \_..=='' /
-      .'.___.-'.
-     /          \
-    ('--......--')
-    /'--......--'\
-   ('"--......--"')`
-));
+  console.log(`Connected to the Content database.`)
+  );
 
 module.exports = db;
