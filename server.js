@@ -1,27 +1,65 @@
 const inquirer = require("inquirer");
+
 const allEmp = require("./db/index");
 
 const allEmployees = () => {
-   return inquirer.prompt([
+   inquirer
+     .prompt([
        {
          type: "input",
          name: "title",
          message: "Do you want to pull all employees?",
-         validate: (allEmps) => {
-           if (allEmps) {
-             return true;
-           } else {
+         validate: (name) => {
+           if (!name) {
              return false;
+           } else {
+             return true;
            }
          },
        },
      ])
-     .then((allEmps) => {
-       return allEmp;
+     .then(() => {
+       return allEmp('*', null);
      });
 };
 
 allEmployees();
+
+// const empName = () => {
+//   inquirer
+//     .prompt([
+//       {
+//         type: "input",
+//         name: "name",
+//         message: "What is the employee name?",
+//         validate: (employeeName) => {
+//           if (!employeeName) {
+//             console.log("Please enter the employee name");
+//             return false;
+//           } else {
+//             return true;
+//           }
+//         },
+//       },
+//     ])
+//     .then(({ name }) => {
+//       if (role === "Manager") {
+//         inquirer
+//           .prompt({
+//             type: "number",
+//             name: "officeNumb",
+//             message: "What is the office number of this manager?",
+//           })
+//           .then(({ officeNumb }) => {
+//             this.manager = new Manager(name, id, email, officeNumb);
+//             employeeData.push(this.manager);
+//             console.log("Employee Data:", employeeData);
+//             restart();
+//           });
+//       }
+//     });
+// };
+
 
 // const apiRoutes = require("./routes/apiRoutes");
 // const PORT = process.env.PORT || 3001;
