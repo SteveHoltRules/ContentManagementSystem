@@ -49,9 +49,9 @@ function fillData() {
   departments.push(pullDataQuery(updateDep));
 
   var roleObjList = [];
-  pullDataQuery(updateRoles).then(({data}) => {
-    roleObjList.push(data)
-  });
+  // pullDataQuery(updateRoles).then(({data}) => {
+  //   roleObjList.push(data)
+  // });
   // roleObjList.push(pullDataQuery(updateRoles));
   console.log("Ln 53 roleObjList: ", roleObjList);
   //My roleObjList is returning undefined. How can I reset it?
