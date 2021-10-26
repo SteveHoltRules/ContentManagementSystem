@@ -1,26 +1,32 @@
 const inquirer = require("inquirer");
-
+const db = require("./db/Connection");
+const mysql = require("mysql2");
 const allEmp = require("./db/index");
+const { response } = require("express");
 
 const allEmployees = () => {
-   inquirer
-     .prompt([
-       {
-         type: "input",
-         name: "title",
-         message: "Do you want to pull all employees?",
-         validate: (name) => {
-           if (!name) {
-             return false;
-           } else {
-             return true;
-           }
-         },
-       },
-     ])
-     .then(() => {
-       return allEmp('*', null);
-     });
+  inquirer
+    .prompt([{
+        type: "confirm",
+        name: "allEmployees",
+        message: "Do you want to pull all employees?",
+        default: false,
+      }])
+    .then((res) => {
+      // var query_str = ;
+      // var query_var = [name];
+      db.query(`SELECT * FROM employee`, function (err, results, fields) {
+        console.log("Inside query");
+        console.table(results);
+        res.json();
+      });
+      console.log("outside");
+    })
+    .catch((err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
 };
 
 allEmployees();
@@ -59,7 +65,6 @@ allEmployees();
 //       }
 //     });
 // };
-
 
 // const apiRoutes = require("./routes/apiRoutes");
 // const PORT = process.env.PORT || 3001;
