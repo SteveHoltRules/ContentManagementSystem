@@ -1,7 +1,5 @@
 const inquirer = require("inquirer");
 const db = require("./db/Connection");
-const mysql = require("mysql2");
-const allEmp = require("./db/index");
 
 //With these defined here, then they can be referenced in the switch cases
 let roles = [];
@@ -9,15 +7,63 @@ let employees = [];
 let departments = [];
 
 function sqlQuery(query_str, params) {
-  db.query(query_str, params, function (err, results) {
+  db.query(query_str, params, (err, rows) => {
     if (err) {
       console.log(err);
       return;
-    } console.log("Completed Query")
-  })
-};
+    }
+    console.table(rows);
+  });
+}
 
-function allEmployees() {
+function pullDataQuery(query_str, params) {
+  var tempPull = [];
+  db.query(query_str, params, (err, rows) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    for (var i = 0; i < rows.length; i++) {
+      tempPull.push(rows[i].name);
+      console.log("Ln 29 Temp: ", tempPull);
+    }
+    if (query_str.includes("empRole")) {
+      console.log("Ln 31 empRole: ", tempPull);
+      roles = tempPull;
+    } else if (query_str.includes("department")) {
+      console.log("Ln 34 department: ", tempPull);
+      departments = tempPull;
+    } else {
+      employees = tempPull;
+    }
+  });
+}
+
+function fillData() {
+  let updateRoles = `SELECT title FROM empRole`;
+  let updateEmp = `SELECT last_name FROM employee`;
+  let updateDep = `SELECT department FROM department`;
+
+  // roles.push(pullDataQuery(updateRoles));
+  employees.push(pullDataQuery(updateEmp));
+  departments.push(pullDataQuery(updateDep));
+
+  var roleObjList = [];
+  pullDataQuery(updateRoles).then(({data}) => {
+    roleObjList.push(data)
+  });
+  // roleObjList.push(pullDataQuery(updateRoles));
+  console.log("Ln 53 roleObjList: ", roleObjList);
+  //My roleObjList is returning undefined. How can I reset it?
+  // for(var i=0; i<roleObjList.length; i++) {
+  //   var roleTemp = Object.values(roleObjList[i]);
+  //   console.log("Ln 45 RoleTemp: ", roleTemp);
+  // }
+  // roleTemp = Object.values(roleObjList);
+  // roles.push(roleTemp);
+}
+
+function allChoices() {
   inquirer
     .prompt([
       {
@@ -34,167 +80,104 @@ function allEmployees() {
           "Add Role",
           "Remove Employee",
           "Update Employee Role",
-          "Update Employee Manager"
+          "Update Employee Manager",
         ],
       },
     ])
-    .then(({ datachoice}) => {
-      nextUpPrompt(datachoice);
-      }).catch(err => {
-        if(err) throw err;
-      })
-};
+    .then(({ choice }) => {
+      console.log("Ln 42 DataChoice: ", choice);
+      nextUpPrompt(choice);
+    })
+    .catch((err) => {
+      if (err) throw err;
+    });
+}
 
 function nextUpPrompt(choice) {
   let sql;
   let params = [];
 
-  switch(choice) {
-    case 'View All Employees':
-      sql = `SELECT * FROM department`
+  console.log("In Nextup Prompt: ", choice);
+
+  switch (choice) {
+    case "View All Employees":
+      console.log("View All Emp: ", choice);
+      sql = `SELECT * FROM employee`;
       sqlQuery(sql);
+      allChoices();
       break;
-    case 'View All Employees By Manager':
-      inquirer.prompt([
-        {
-          type: 'list',
-          name: 'manager',
-          message: 'Select a manager to view their employees:',
-          choices: employees
-        }
-      ]).then(({ manager }) => {
-        let managerId = employees.indexOf(manager)+1;
-        sql = `SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) AS employee, role.title AS role FROM employee
+    case "View All Employees By Manager":
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "manager",
+            message: "Select a manager to view their employees:",
+            choices: employees,
+          },
+        ])
+        .then(({ manager }) => {
+          let managerId = employees.indexOf(manager) + 1;
+          (sql = `SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) AS employee, role.title AS role FROM employee
         JOIN role ON employee.role_id = role.id
-        WHERE employee.manager_id = ?`,
-        params = [managerId],
-        sqlQuery(sql, params);
-        break;
-      })
-      sql = `SELECT * FROM employee`
+        WHERE employee.manager_id = ?`),
+            (params = [managerId]),
+            sqlQuery(sql, params);
+        });
+      sql = `SELECT * FROM employee`;
       sqlQuery(sql);
-      break;
-    case 'Add Employee':
-      inquirer.prompt([
-      {
-        type: 'input',
-        name: 'first_name',
-        message: 'What is the first name?'
-      },
-      {
-        type: 'input',
-        name: 'last_name',
-        message: 'What is the last name?'
-      },      
-      {
-        type: 'list',
-        name: 'role',
-        message: 'What is the role?',
-        choices: roles
-      },
-      {
-        type: 'list',
-        name: 'department',
-        message: 'What department?',
-        choices: departments
-      },
-      {
-        type: 'list',
-        name: 'manager',
-        //How can the manager be referenced by the manager id?
-        message: 'Who is the manager?',
-        choices: employees
-      }
-    ])
-      .then(({first_name, last_name, role, department, manager}) => {
-        sql = `INSERT INTO employee (first_name, last_name, role, department, manager) VALUE (?,?,?)`;
-        params = [first_name, last_name, role, department, manager];
-        sqlQuery(sql, params);
-      }).catch(err => {
-        if(err) throw err;
-      })
-      break;
-    case 'Add Department':
-    case 'Add Role':
-    case 'View All Roles':
-    case 'Remove Employee':
-    case 'Update Employee Role':
-    case 'Update Employee Manager':
+    case "Add Employee":
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "first_name",
+            message: "What is the first name?",
+          },
+          {
+            type: "input",
+            name: "last_name",
+            message: "What is the last name?",
+          },
+          {
+            type: "list",
+            name: "role",
+            message: "What is the role?",
+            choices: roles,
+          },
+          {
+            type: "list",
+            name: "department",
+            message: "What department?",
+            choices: departments,
+          },
+          {
+            type: "list",
+            name: "manager",
+            //How can the manager be referenced by the manager id?
+            message: "Who is the manager?",
+            choices: employees,
+          },
+        ])
+        .then(({ first_name, last_name, role, department, manager }) => {
+          sql = `INSERT INTO employee (first_name, last_name, role, department, manager) VALUE (?,?,?)`;
+          params = [first_name, last_name, role, department, manager];
+          sqlQuery(sql, params);
+        })
+        .catch((err) => {
+          if (err) throw err;
+        });
+    case "Add Department":
+    case "Add Role":
+    case "View All Roles":
+    case "Remove Employee":
+    case "Update Employee Role":
+    case "Update Employee Manager":
   }
-
-  inquirer.prompt([
-    {
-      type: 'list',
-      name: 'choice',
-      message"
-    }
-  ])
 }
 
-function updateTables() {
-  const departmentTemp = [];
-  const rolesTemp = [];
-  const employeeTemp = [];
-
-  allEmp();
-
-}
-
-allEmployees();
-
-// const empName = () => {
-//   inquirer
-//     .prompt([
-//       {
-//         type: "input",
-//         name: "name",
-//         message: "What is the employee name?",
-//         validate: (employeeName) => {
-//           if (!employeeName) {
-//             console.log("Please enter the employee name");
-//             return false;
-//           } else {
-//             return true;
-//           }
-//         },
-//       },
-//     ])
-//     .then(({ name }) => {
-//       if (role === "Manager") {
-//         inquirer
-//           .prompt({
-//             type: "number",
-//             name: "officeNumb",
-//             message: "What is the office number of this manager?",
-//           })
-//           .then(({ officeNumb }) => {
-//             this.manager = new Manager(name, id, email, officeNumb);
-//             employeeData.push(this.manager);
-//             console.log("Employee Data:", employeeData);
-//             restart();
-//           });
-//       }
-//     });
-// };
-
-// const apiRoutes = require("./routes/apiRoutes");
-// const PORT = process.env.PORT || 3001;
-// const app = express();
-
-// //Express middleware
-// app.use(express.urlencoded({ extended: false }));
-// app.use(express.json());
-
-// app.use("/api", apiRoutes);
-
-// app.use((req, res) => {
-//   res.status(404).end();
-// });
-
-// db.connect((err) => {
-//   if(err) throw err;
-//   console.log("Database connected");
-//   app.listen(PORT, () => {
-//     console.log(`Server running on ${PORT}!`);
-//   });
-// });
+fillData();
+console.log(roles);
+console.log(employees);
+console.log(departments);
+// allChoices();

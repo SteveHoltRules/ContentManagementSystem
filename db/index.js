@@ -1,5 +1,3 @@
-// const inquirer = require("inquirer");
-// const mysql = require("mysql2");
 const db = require("./Connection");
 
 // const allEmp = db.connect(function (err) {
