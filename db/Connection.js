@@ -8,7 +8,6 @@ const db = mysql.createConnection(
     password: "Txn@lgene11",
     database: "content",
   },
-  console.log(`Connected to the Content database.`)
-  );
+  console.log(`Connected to the Content database.`));
 
 module.exports = db;
