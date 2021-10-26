@@ -8,20 +8,22 @@ const db = require("./Connection");
 //   });
 // });
 
-function allEmp(name) {
-  // async new Promise(function (resolve, reject) {
-    // var connection = getMySQL_connection();
-    var query_str = `SELECT ${name} FROM employee`;
+let departments = [];
 
-    // var query_var = [name];
+function allEmp() {
+    const departmentsTemp = [];
+    var query_str = `SELECT * FROM employee`;
 
     db.query(query_str, function (err, results, fields) {
-      // if (err) {
-      //   console.log(err);
-      //   // return reject(err);
-      // }
-      // console.log(results);
-      console.log(results);
+      if(!err) {
+        for (var i = 0; i < results.length; i++) {
+          departmentsTemp.push(results[i].name);
+        }
+        departments = departmentsTemp;
+      } else { 
+        console.log(err);
+        return;
+      }
     });
     return;
 };
