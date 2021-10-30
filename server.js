@@ -16,44 +16,54 @@ function sqlQuery(query_str, params) {
   });
 }
 
-function pullDataQuery(query_str, params) {
+function pullDataQuery(query_str, key, params = []) {
   var tempPull = [];
-  db.query(query_str, params, (err, rows) => {
+  //In this push it is returning the length of the array.
+  //Any method return - setting a variable to the result of a method will show what is being returned. 
+  //This will be different from what the method does. - Called a side effect
+  const pushResul = tempPull.push('hello')
+  console.log(`pushResult: ${pushResul}`, `tempPull: ${tempPull}`)
+  const resp = db.query(query_str, params, (err, rows) => {
+    console.log(err, rows);
     if (err) {
       console.log(err);
       return;
     }
+    console.log(rows);
     for (var i = 0; i < rows.length; i++) {
-      tempPull.push(rows[i].name);
+      tempPull.push(rows[i][key]);
       console.log("Ln 29 Temp: ", tempPull);
     }
-    if (query_str.includes("empRole")) {
-      console.log("Ln 31 empRole: ", tempPull);
-      roles = tempPull;
-    } else if (query_str.includes("department")) {
-      console.log("Ln 34 department: ", tempPull);
-      departments = tempPull;
-    } else {
-      employees = tempPull;
-    }
+    return tempPull;
+    // if (query_str.includes("empRole")) {
+    //   console.log("Ln 31 empRole: ", tempPull);
+    //   roles = tempPull;
+    // } else if (query_str.includes("department")) {
+    //   console.log("Ln 34 department: ", tempPull);
+    //   departments = tempPull;
+    // } else {
+    //   employees = tempPull;
+    // }
   });
+  return tempPull;
 }
 
 function fillData() {
-  let updateRoles = `SELECT title FROM empRole`;
+  let updateRoles = `SELECT * FROM empRole`;
   let updateEmp = `SELECT last_name FROM employee`;
   let updateDep = `SELECT department FROM department`;
 
   // roles.push(pullDataQuery(updateRoles));
-  employees.push(pullDataQuery(updateEmp));
-  departments.push(pullDataQuery(updateDep));
+  roles = pullDataQuery(updateRoles, 'role');
+  employees = pullDataQuery(updateEmp, 'last_name');
+  pullDataQuery(updateDep);
 
   var roleObjList = [];
   // pullDataQuery(updateRoles).then(({data}) => {
   //   roleObjList.push(data)
   // });
   // roleObjList.push(pullDataQuery(updateRoles));
-  console.log("Ln 53 roleObjList: ", roleObjList);
+  console.log("Ln 56 roleObjList: ", roleObjList);
   //My roleObjList is returning undefined. How can I reset it?
   // for(var i=0; i<roleObjList.length; i++) {
   //   var roleTemp = Object.values(roleObjList[i]);
