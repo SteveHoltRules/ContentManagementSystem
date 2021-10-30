@@ -16,7 +16,7 @@ function sqlQuery(query_str, params) {
   });
 }
 
-function pullDataQuery(query_str, key) {
+async function pullDataQuery(query_str, key) {
   var tempPull = [];
   const queryPull = db.promise().query(query_str);
   queryPull
@@ -44,14 +44,17 @@ function fillData() {
   const updateRoles = `SELECT title FROM empRole`;
   const updateEmp = `SELECT last_name FROM employee`;
   const updateDep = `SELECT department FROM department`;
-
-  console.log("Ln 47 pulldataQuery: ", pullDataQuery(updateRoles, 'title'));
+  try {
+    pullDataQuery(updateRoles, 'title').then((data) => console.log("ln 48: ", data))
+  } catch(err) {}
+  // pullDataQuery(updateRoles, 'title').then((data) => console.log("ln 47: ", data));
+  console.log("Ln 48 pulldataQuery: ", roles);
   // employees = pullDataQuery(updateEmp, "last_name");
   // departments = pullDataQuery(updateDep, "department");
 
-  console.log("Ln 47 Roles: ", roles);
-  console.log("Ln 48 Employeees: ", employees);
-  console.log("Ln 49 Departments: ", departments);
+  // console.log("Ln 47 Roles: ", roles);
+  // console.log("Ln 48 Employeees: ", employees);
+  // console.log("Ln 49 Departments: ", departments);
 }
 
 function allChoices() {
