@@ -16,61 +16,42 @@ function sqlQuery(query_str, params) {
   });
 }
 
-function pullDataQuery(query_str, key, params = []) {
+function pullDataQuery(query_str, key) {
   var tempPull = [];
-  //In this push it is returning the length of the array.
-  //Any method return - setting a variable to the result of a method will show what is being returned. 
-  //This will be different from what the method does. - Called a side effect
-  const pushResul = tempPull.push('hello')
-  console.log(`pushResult: ${pushResul}`, `tempPull: ${tempPull}`)
-  const resp = db.query(query_str, params, (err, rows) => {
-    console.log(err, rows);
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log(rows);
-    for (var i = 0; i < rows.length; i++) {
-      tempPull.push(rows[i][key]);
-      console.log("Ln 29 Temp: ", tempPull);
-    }
-    return tempPull;
-    // if (query_str.includes("empRole")) {
-    //   console.log("Ln 31 empRole: ", tempPull);
-    //   roles = tempPull;
-    // } else if (query_str.includes("department")) {
-    //   console.log("Ln 34 department: ", tempPull);
-    //   departments = tempPull;
-    // } else {
-    //   employees = tempPull;
-    // }
-  });
-  return tempPull;
+  const queryPull = db.promise().query(query_str);
+  queryPull
+    .then((rows) => rows[0])
+    .then((rows, err) => {
+      console.log("Ln 25: Data: ", rows);
+      if (err) {
+        console.log(err);
+        return;
+      }
+      // console.log(rows);
+      for (var i = 0; i < rows.length; i++) {
+        tempPull.push(rows[i][key]);
+      }
+      console.log("Ln 34 tempPull: ", tempPull);
+      return tempPull;
+    })
+    .then((data) => {
+      console.log("ln 37 Data: ", data);
+      return data;
+    });
 }
 
 function fillData() {
-  let updateRoles = `SELECT * FROM empRole`;
-  let updateEmp = `SELECT last_name FROM employee`;
-  let updateDep = `SELECT department FROM department`;
+  const updateRoles = `SELECT title FROM empRole`;
+  const updateEmp = `SELECT last_name FROM employee`;
+  const updateDep = `SELECT department FROM department`;
 
-  // roles.push(pullDataQuery(updateRoles));
-  roles = pullDataQuery(updateRoles, 'role');
-  employees = pullDataQuery(updateEmp, 'last_name');
-  pullDataQuery(updateDep);
+  console.log("Ln 47 pulldataQuery: ", pullDataQuery(updateRoles, 'title'));
+  // employees = pullDataQuery(updateEmp, "last_name");
+  // departments = pullDataQuery(updateDep, "department");
 
-  var roleObjList = [];
-  // pullDataQuery(updateRoles).then(({data}) => {
-  //   roleObjList.push(data)
-  // });
-  // roleObjList.push(pullDataQuery(updateRoles));
-  console.log("Ln 56 roleObjList: ", roleObjList);
-  //My roleObjList is returning undefined. How can I reset it?
-  // for(var i=0; i<roleObjList.length; i++) {
-  //   var roleTemp = Object.values(roleObjList[i]);
-  //   console.log("Ln 45 RoleTemp: ", roleTemp);
-  // }
-  // roleTemp = Object.values(roleObjList);
-  // roles.push(roleTemp);
+  console.log("Ln 47 Roles: ", roles);
+  console.log("Ln 48 Employeees: ", employees);
+  console.log("Ln 49 Departments: ", departments);
 }
 
 function allChoices() {
@@ -159,7 +140,7 @@ function nextUpPrompt(choice) {
             type: "list",
             name: "department",
             message: "What department?",
-            choices: departments,
+            choices: [...departments],
           },
           {
             type: "list",
@@ -186,8 +167,7 @@ function nextUpPrompt(choice) {
   }
 }
 
+// fillData();
+
 fillData();
-console.log(roles);
-console.log(employees);
-console.log(departments);
-// allChoices();
+allChoices();
