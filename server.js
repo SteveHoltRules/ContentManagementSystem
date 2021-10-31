@@ -16,43 +16,104 @@ function sqlQuery(query_str, params) {
   });
 }
 
-function pullDataQuery(query_str, key) {
+function pullDataQuery() {
   var tempPull = [];
-  const queryPull = db.promise().query(query_str);
-  queryPull
+  const updateRoles = `SELECT title FROM empRole`;
+  const updateEmp = `SELECT last_name FROM employee`;
+  const updateDep = `SELECT department FROM department`;
+
+  const employeeRole = db.promise().query(updateRoles);
+  employeeRole
     .then((rows) => rows[0])
     .then((rows, err) => {
-      console.log("Ln 25: Data: ", rows);
+      tempPull.length = 0;
+      // console.log("Ln 29: Data: ", rows);
       if (err) {
         console.log(err);
         return;
       }
       // console.log(rows);
       for (var i = 0; i < rows.length; i++) {
-        tempPull.push(rows[i][key]);
+        tempPull.push(rows[i]["title"]);
       }
-      console.log("Ln 34 tempPull: ", tempPull);
+      // console.log("Ln 38 tempPull: ", tempPull);
       return tempPull;
     })
     .then((data) => {
-      console.log("ln 37 Data: ", data);
-      return data;
+      console.log("ln 43 Data: ", data);
+      roles = data
+      console.log("ln 45 roles: ", roles);
+      return roles;
     });
+  const departmentTemp = db.promise().query(updateDep);
+  departmentTemp
+    .then((rows) => rows[0])
+    .then((rows, err) => {
+      tempPull.length = 0;
+      // console.log("Ln 50: Data: ", rows);
+      if (err) {
+        console.log(err);
+        return;
+      }
+      // console.log(rows);
+      for (var i = 0; i < rows.length; i++) {
+        tempPull.push(rows[i]["department"]);
+      }
+      // console.log("Ln 59 tempPull: ", tempPull);
+      return tempPull;
+    })
+    .then((data) => {
+      console.log("ln 64 Data: ", data);
+      departments = data;
+      console.log("ln 67 departments: ", departments);
+      return departments;
+    });
+  const employeeTemp = db.promise().query(updateEmp);
+  employeeTemp
+    .then((rows) => rows[0])
+    .then((rows, err) => {
+      tempPull.length = 0;
+      // console.log("Ln 71: Data: ", rows);
+      if (err) {
+        console.log(err);
+        return;
+      }
+      // console.log(rows);
+      for (var i = 0; i < rows.length; i++) {
+        tempPull.push(rows[i]["last_name"]);
+      }
+      // console.log("Ln 80 tempPull: ", tempPull);
+      return tempPull;
+    })
+    .then((data) => {
+      console.log("ln 89 Data: ", data);
+      employees = data;
+      console.log("ln 91 Last Name: ", employees);
+      return employees;
+    });
+  roles = employeeRole;
+  console.log("ln 95: ", roles);
+  departments = departmentTemp;
+  console.log("ln 97: ", departments);
+  employees = employeeTemp;
+  console.log("ln 99: ", employees);
 }
 
-function fillData() {
-  const updateRoles = `SELECT title FROM empRole`;
-  const updateEmp = `SELECT last_name FROM employee`;
-  const updateDep = `SELECT department FROM department`;
+// function fillData() {
+//This function gets stuck in a promise where it is called prior to the data return. I can't figure it out.
+//For now I will leave it in while I merge two functions to replace the split functions
+// const updateRoles = `SELECT title FROM empRole`;
+// const updateEmp = `SELECT last_name FROM employee`;
+// const updateDep = `SELECT department FROM department`;
 
-  console.log("Ln 47 pulldataQuery: ", pullDataQuery(updateRoles, 'title'));
-  // employees = pullDataQuery(updateEmp, "last_name");
-  // departments = pullDataQuery(updateDep, "department");
+// roles = pullDataQuery(updateRoles, 'title')
+// employees = pullDataQuery(updateEmp, "last_name");
+// departments = pullDataQuery(updateDep, "department");
 
-  console.log("Ln 47 Roles: ", roles);
-  console.log("Ln 48 Employeees: ", employees);
-  console.log("Ln 49 Departments: ", departments);
-}
+// console.log("Ln 47 Roles: ", roles);
+// console.log("Ln 48 Employeees: ", employees);
+// console.log("Ln 49 Departments: ", departments);
+// }
 
 function allChoices() {
   inquirer
@@ -109,14 +170,12 @@ function nextUpPrompt(choice) {
         ])
         .then(({ manager }) => {
           let managerId = employees.indexOf(manager) + 1;
-          (sql = `SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) AS employee, role.title AS role FROM employee
+          (sql = `SELECT employee.id, (employee.last_name) AS employee, empRole.title AS role FROM employee
         JOIN role ON employee.role_id = role.id
         WHERE employee.manager_id = ?`),
             (params = [managerId]),
             sqlQuery(sql, params);
         });
-      sql = `SELECT * FROM employee`;
-      sqlQuery(sql);
     case "Add Employee":
       inquirer
         .prompt([
@@ -140,7 +199,7 @@ function nextUpPrompt(choice) {
             type: "list",
             name: "department",
             message: "What department?",
-            choices: [...departments],
+            choices: departments,
           },
           {
             type: "list",
@@ -169,5 +228,5 @@ function nextUpPrompt(choice) {
 
 // fillData();
 
-fillData();
+pullDataQuery();
 allChoices();
