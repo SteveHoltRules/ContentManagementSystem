@@ -17,16 +17,19 @@ function sqlQuery(query_str, params) {
 }
 
 function pullDataQuery() {
-  var tempPull = [];
+  var roleTemp = [];
+  var depTemp = [];
+  var empTemp = [];
+
   const updateRoles = `SELECT title FROM empRole`;
-  const updateEmp = `SELECT last_name FROM employee`;
   const updateDep = `SELECT department FROM department`;
+  const updateEmp = `SELECT last_name FROM employee`;
 
   const employeeRole = db.promise().query(updateRoles);
   employeeRole
     .then((rows) => rows[0])
     .then((rows, err) => {
-      tempPull.length = 0;
+      roleTemp.length = 0;
       // console.log("Ln 29: Data: ", rows);
       if (err) {
         console.log(err);
@@ -34,10 +37,9 @@ function pullDataQuery() {
       }
       // console.log(rows);
       for (var i = 0; i < rows.length; i++) {
-        tempPull.push(rows[i]["title"]);
+        roleTemp.push(rows[i]["title"]);
       }
-      // console.log("Ln 38 tempPull: ", tempPull);
-      return tempPull;
+      return roleTemp;
     })
     .then((data) => {
       console.log("ln 43 Data: ", data);
@@ -49,7 +51,7 @@ function pullDataQuery() {
   departmentTemp
     .then((rows) => rows[0])
     .then((rows, err) => {
-      tempPull.length = 0;
+      depTemp.length = 0;
       // console.log("Ln 50: Data: ", rows);
       if (err) {
         console.log(err);
@@ -57,10 +59,9 @@ function pullDataQuery() {
       }
       // console.log(rows);
       for (var i = 0; i < rows.length; i++) {
-        tempPull.push(rows[i]["department"]);
+        depTemp.push(rows[i]["department"]);
       }
-      // console.log("Ln 59 tempPull: ", tempPull);
-      return tempPull;
+      return depTemp;
     })
     .then((data) => {
       console.log("ln 64 Data: ", data);
@@ -72,7 +73,7 @@ function pullDataQuery() {
   employeeTemp
     .then((rows) => rows[0])
     .then((rows, err) => {
-      tempPull.length = 0;
+      empTemp.length = 0;
       // console.log("Ln 71: Data: ", rows);
       if (err) {
         console.log(err);
@@ -80,10 +81,9 @@ function pullDataQuery() {
       }
       // console.log(rows);
       for (var i = 0; i < rows.length; i++) {
-        tempPull.push(rows[i]["last_name"]);
+        empTemp.push(rows[i]["last_name"]);
       }
-      // console.log("Ln 80 tempPull: ", tempPull);
-      return tempPull;
+      return empTemp;
     })
     .then((data) => {
       console.log("ln 89 Data: ", data);
@@ -91,12 +91,6 @@ function pullDataQuery() {
       console.log("ln 91 Last Name: ", employees);
       return employees;
     });
-  roles = employeeRole;
-  console.log("ln 95: ", roles);
-  departments = departmentTemp;
-  console.log("ln 97: ", departments);
-  employees = employeeTemp;
-  console.log("ln 99: ", employees);
 }
 
 // function fillData() {
@@ -197,21 +191,18 @@ function nextUpPrompt(choice) {
           },
           {
             type: "list",
-            name: "department",
-            message: "What department?",
-            choices: departments,
-          },
-          {
-            type: "list",
             name: "manager",
             //How can the manager be referenced by the manager id?
             message: "Who is the manager?",
             choices: employees,
           },
         ])
-        .then(({ first_name, last_name, role, department, manager }) => {
-          sql = `INSERT INTO employee (first_name, last_name, role, department, manager) VALUE (?,?,?)`;
-          params = [first_name, last_name, role, department, manager];
+        .then(({ first_name, last_name, role, manager }) => {
+          let roleId = roles.indexOf(role) +1;
+          let managerId;
+          managerId = employees.indexOf(manager) +1;
+          sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUE (?,?,?,?)`;
+          params = [first_name, last_name, roleId, managerId];
           sqlQuery(sql, params);
         })
         .catch((err) => {
