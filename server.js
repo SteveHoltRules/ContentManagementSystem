@@ -42,9 +42,9 @@ function pullDataQuery() {
       return roleTemp;
     })
     .then((data) => {
-      console.log("ln 43 Data: ", data);
-      roles = data
-      console.log("ln 45 roles: ", roles);
+      // console.log("ln 43 Data: ", data);
+      roles = data;
+      // console.log("ln 45 roles: ", roles);
       return roles;
     });
   const departmentTemp = db.promise().query(updateDep);
@@ -64,9 +64,9 @@ function pullDataQuery() {
       return depTemp;
     })
     .then((data) => {
-      console.log("ln 64 Data: ", data);
+      // console.log("ln 64 Data: ", data);
       departments = data;
-      console.log("ln 67 departments: ", departments);
+      // console.log("ln 67 departments: ", departments);
       return departments;
     });
   const employeeTemp = db.promise().query(updateEmp);
@@ -86,9 +86,9 @@ function pullDataQuery() {
       return empTemp;
     })
     .then((data) => {
-      console.log("ln 89 Data: ", data);
+      // console.log("ln 89 Data: ", data);
       employees = data;
-      console.log("ln 91 Last Name: ", employees);
+      // console.log("ln 91 Last Name: ", employees);
       return employees;
     });
 }
@@ -170,6 +170,12 @@ function nextUpPrompt(choice) {
             (params = [managerId]),
             sqlQuery(sql, params);
         });
+    case "View All Roles":
+      console.log("View All Emp: ", choice);
+      sql = `SELECT * FROM empRoles`;
+      sqlQuery(sql);
+      allChoices();
+      break;
     case "Add Employee":
       inquirer
         .prompt([
@@ -198,22 +204,135 @@ function nextUpPrompt(choice) {
           },
         ])
         .then(({ first_name, last_name, role, manager }) => {
-          let roleId = roles.indexOf(role) +1;
+          let roleId = roles.indexOf(role) + 1;
           let managerId;
-          managerId = employees.indexOf(manager) +1;
+          managerId = employees.indexOf(manager) + 1;
           sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUE (?,?,?,?)`;
           params = [first_name, last_name, roleId, managerId];
           sqlQuery(sql, params);
+          pullDataQuery();
+          allChoices();
         })
         .catch((err) => {
           if (err) throw err;
         });
     case "Add Department":
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "department",
+            message: "What is the name of the new department?",
+          },
+          {
+            type: "input",
+            name: "description",
+            message: "What is the new department's description?",
+          },
+        ])
+        .then(({ department, description }) => {
+          sql = `INSERT INTO department (department, description) VALUE (?,?)`;
+          params = [department, description];
+          sqlQuery(sql, params);
+          pullDataQuery();
+          allChoices();
+        });
     case "Add Role":
-    case "View All Roles":
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "title",
+            message: "What is the name of the new role?",
+          },
+          {
+            type: "input",
+            name: "salary",
+            message: "What is the salary of the new role?",
+          },
+          {
+            type: "list",
+            name: "department",
+            message: "In which department does the role belong?",
+            choices: departments,
+          },
+        ])
+        .then(({ title, salary, department }) => {
+          let departmentId = departments.indexOf(department);
+          sql = `INSERT INTO empRole (title, salary, department_id) VALUE (?,?,?)`;
+          params = [title, salary, departmentId];
+          sqlQuery(sql, params);
+          pullDataQuery();
+          allChoices();
+        });
     case "Remove Employee":
+      console.log("Remove Employee: ", choice);
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "employee",
+            message: "Select an employee to remove:",
+            choices: employees,
+          },
+        ])
+        .then(({ employee }) => {
+          let employeeId = employees.indexOf(employee);
+          console.log(employeeId);
+          sql = `DELETE FROM employee WHERE employee.id = ?`,
+          params = [employeeId],
+          sqlQuery(sql, params);
+          pullDataQuery();
+          allChoices();
+        });
     case "Update Employee Role":
+            console.log("Remove Employee: ", choice);
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "employee",
+            message: "Select an employee to remove:",
+            choices: employees,
+          },
+        ])
+        .then(({ employee }) => {
+          let employeeId = employees.indexOf(employee);
+          console.log(employeeId);
+          sql = `DELETE FROM employee WHERE employee.id = ?`,
+          params = [employeeId],
+          sqlQuery(sql, params);
+          pullDataQuery();
+          allChoices();
+        });
     case "Update Employee Manager":
+            console.log("Remove Employee: ", choice);
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "employee",
+            message: "Select an employee:",
+            choices: employees,
+          },
+          {
+            type: "list",
+            name: "manager",
+            message: "Select a new manager:",
+            choices: employees,
+          },
+        ])
+        .then(({ employee, manager }) => {
+          let employeeId = employees.indexOf(employee);
+          let managerId = employees.indexOf(manager);
+          console.log(employeeId);
+          console.log(managerId);
+          sql = `UPDATE employee SET manager_id = ?, WHERE employee.id = ?`,
+          params = [managerId, employeeId],
+          sqlQuery(sql, params);
+          pullDataQuery();
+          allChoices();
+        });
   }
 }
 
