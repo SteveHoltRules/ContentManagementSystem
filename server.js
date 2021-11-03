@@ -286,7 +286,7 @@ function nextUpPrompt(choice) {
           allChoices();
         });
     case "Update Employee Role":
-            console.log("Remove Employee: ", choice);
+            console.log("Update Employee Role: ", choice);
       inquirer
         .prompt([
           {
@@ -295,18 +295,25 @@ function nextUpPrompt(choice) {
             message: "Select an employee to remove:",
             choices: employees,
           },
+          {
+            type: "list",
+            name: "role",
+            message: "Select a new role for the employee:",
+            choices: roles,
+          },
         ])
-        .then(({ employee }) => {
-          let employeeId = employees.indexOf(employee);
+        .then(({ employee, role }) => {
+          let employeeId = employees.indexOf(employee)+1;
+          let roleId = roles.indexOf(role)+1;
           console.log(employeeId);
-          sql = `DELETE FROM employee WHERE employee.id = ?`,
-          params = [employeeId],
+          sql = `UPDATE employee SET role_id = ? WHERE employee.id = ?`,
+          params = [employeeId, roleId],
           sqlQuery(sql, params);
           pullDataQuery();
           allChoices();
         });
     case "Update Employee Manager":
-            console.log("Remove Employee: ", choice);
+            console.log("Update Manager: ", choice);
       inquirer
         .prompt([
           {
@@ -323,11 +330,11 @@ function nextUpPrompt(choice) {
           },
         ])
         .then(({ employee, manager }) => {
-          let employeeId = employees.indexOf(employee);
-          let managerId = employees.indexOf(manager);
+          let employeeId = employees.indexOf(employee)+1;
+          let managerId = employees.indexOf(manager)+1;
           console.log(employeeId);
           console.log(managerId);
-          sql = `UPDATE employee SET manager_id = ?, WHERE employee.id = ?`,
+          sql = `UPDATE employee SET manager_id = ? WHERE id = ?`,
           params = [managerId, employeeId],
           sqlQuery(sql, params);
           pullDataQuery();
